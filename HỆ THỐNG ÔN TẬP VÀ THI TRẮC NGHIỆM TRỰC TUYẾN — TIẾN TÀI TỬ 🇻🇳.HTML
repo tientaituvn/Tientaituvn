@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIẾN TÀI TỬ 🇻🇳 - HỆ THỐNG ÔN TẬP VÀ THI TRẮC NGHIỆM TRỰC TUYẾN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --accent: #eff6ff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* LỚP WATERMARK BẢO VỆ TOÀN MÀN HÌNH */
+        .fixed-watermark {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            user-select: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .watermark-text {
+            font-size: clamp(40px, 7vw, 85px);
+            font-weight: 800;
+            color: rgba(30, 41, 59, 0.08);
+            transform: rotate(-24deg);
+            white-space: nowrap;
+            letter-spacing: 4px;
+        }
+
+        /* KHUNG XANH TRÊN CÙNG */
+        header {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            color: white;
+            padding: 36px 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+            position: relative;
+            z-index: 2;
+        }
+
+        .author-name {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .portal-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.95;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px 16px;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* THANH TÌM KIẾM & NÚT LỌC MÔN HỌC */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            user-select: text;
+            -webkit-user-select: text;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* KHU VỰC NÚT DANH MỤC */
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .category-filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            background: white;
+            color: var(--text-sub);
+            border: 1px solid var(--border);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.28);
+        }
+
+        /* KHU VỰC THẺ BÀI THI */
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .exam-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ĐỔI NHÃN ĐỀ THI SANG MÀU XANH LÁ CÂY */
+        .card-tag {
+            background: #ecfdf5;
+            color: #059669;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        /* NHÃN ĐỀ CƯƠNG ÔN TẬP */
+        .card-tag.outline-tag {
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        .card-tag.subject-tag {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 18px;
+        }
+
+        .card-btn {
+            display: block;
+            text-align: center;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 11px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .card-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* THÔNG BÁO RỖNG */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-sub);
+            background: white;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state-icon {
+            font-size: 44px;
+            margin-bottom: 14px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .empty-state span {
+            font-size: 13.5px;
+            color: var(--text-sub);
+            display: block;
+        }
+
+        /* CHÂN TRANG */
+        footer {
+            text-align: center;
+            padding: 22px 16px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #475569;
+            border-top: 1px solid var(--border);
+            background: white;
+            margin-top: auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* HỖ TRỢ IN ẤN / XUẤT FILE PDF */
+        @media print {
+            .fixed-watermark {
+                display: flex !important;
+                opacity: 0.25 !important;
+            }
+            .watermark-text {
+                color: #000000 !important;
+            }
+            footer::after {
+                content: " — Bản quyền nội dung thuộc về TIẾN TÀI TỬ 🇻🇳";
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LỚP WATERMARK CỐ ĐỊNH CHỐNG CHỤP MÀN HÌNH -->
+    <div id="author-watermark" class="fixed-watermark">
+        <div id="author-watermark-text" class="watermark-text">TIẾN TÀI TỬ 🇻🇳</div>
+    </div>
+
+    <!-- KHUNG XANH TRÊN CÙNG -->
+    <header>
+        <div class="author-name" id="portalAuthor">TIẾN TÀI TỬ 🇻🇳</div>
+        <div class="portal-title">HỆ THỐNG ÔN TẬP VÀ THI TRẮC NGHIỆM TRỰC TUYẾN</div>
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <!-- Ô TÌM KIẾM -->
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Tìm kiếm bài thi theo tên hoặc môn học...">
+            </div>
+
+            <!-- DANH MỤC LỌC MÔN HỌC -->
+            <div class="category-filters" id="categoryFilters"></div>
+        </div>
+
+        <!-- DANH SÁCH BÀI THI -->
+        <div class="exam-grid" id="examGrid"></div>
+    </div>
+
+    <!-- DÒNG CHỮ DƯỚI CÙNG -->
+    <footer id="portalFooter">
+        HỆ THỐNG ÔN TẬP VÀ THI TRẮC NGHIỆM TRỰC TUYẾN — TIẾN TÀI TỬ 🇻🇳
+    </footer>
+
+    <script>
+        // =========================================================================
+        // HỆ THỐNG BẢO MẬT & CHỐNG ĐÁNH CẮP BẢN QUYỀN (ANTI-THEFT & DOM DEFENSE)
+        // =========================================================================
+        (function enforceCopyrightProtection() {
+            const BRAND_SIGNATURE = "TIẾN TÀI TỬ 🇻🇳";
+
+            // 1. Chặn chuột phải trên toàn trang
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            }, true);
+
+            // 2. Chặn bôi đen toàn trang (ngoại trừ ô tìm kiếm)
+            document.addEventListener('selectstart', function(e) {
+                if (e.target.id !== 'searchInput') {
+                    e.preventDefault();
+                    return false;
+                }
+            }, true);
+
+            // 3. Chặn các phím tắt kỹ thuật & phím tắt sao chép
+            document.addEventListener('keydown', function(e) {
+                // Chặn F12
+                if (e.key === 'F12' || e.keyCode === 123) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Chặn Ctrl+U, Ctrl+S
+                if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Chặn Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+                if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Chặn copy/cut/select-all ngoài ô tìm kiếm
+                if (e.ctrlKey && ['a', 'A', 'c', 'C', 'x', 'X'].includes(e.key) && e.target.id !== 'searchInput') {
+                    e.preventDefault();
+                    return false;
+                }
+            }, true);
+
+            // 4. Cơ chế tự hủy khi phát hiện can thiệp bản quyền
+            function triggerCopyrightLock() {
+                document.body.innerHTML = `
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#0f172a;color:#ef4444;text-align:center;padding:24px;font-family:'Be Vietnam Pro',sans-serif;">
+                        <div style="font-size:64px;margin-bottom:16px;">⚠️</div>
+                        <h1 style="font-size:24px;font-weight:800;margin-bottom:12px;color:#f87171;">CẢNH BÁO VI PHẠM BẢN QUYỀN</h1>
+                        <p style="font-size:16px;color:#f8fafc;max-width:550px;line-height:1.6;">
+                            Hệ thống phát hiện hành vi cố tình chỉnh sửa, làm mờ hoặc xóa bỏ dấu hiệu bản quyền của 
+                            <span style="color:#60a5fa;font-weight:700;">${BRAND_SIGNATURE}</span>. 
+                            Trang web đã tự động vô hiệu hóa toàn bộ quyền truy cập.
+                        </p>
+                    </div>
+                `;
+                throw new Error("Unauthorized copyright alteration detected.");
+            }
+
+            // 5. Kiểm tra tính toàn vẹn của DOM định kỳ
+            function verifyIntegrity() {
+                const watermarkEl = document.getElementById('author-watermark');
+                const watermarkTextEl = document.getElementById('author-watermark-text');
+                const authorHeaderEl = document.getElementById('portalAuthor');
+                const footerEl = document.getElementById('portalFooter');
+
+                if (!watermarkEl || !watermarkTextEl || !authorHeaderEl || !footerEl) {
+                    triggerCopyrightLock();
+                    return;
+                }
+
+                if (!watermarkTextEl.textContent.includes(BRAND_SIGNATURE) ||
+                    !authorHeaderEl.textContent.includes(BRAND_SIGNATURE) ||
+                    !footerEl.textContent.includes(BRAND_SIGNATURE)) {
+                    triggerCopyrightLock();
+                    return;
+                }
+
+                const style = window.getComputedStyle(watermarkEl);
+                if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) {
+                    triggerCopyrightLock();
+                    return;
+                }
+            }
+
+            // Theo dõi DOM qua MutationObserver
+            const observer = new MutationObserver(function() {
+                verifyIntegrity();
+            });
+
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                characterData: true
+            });
+
+            // Vòng quét ngầm định kỳ
+            setInterval(verifyIntegrity, 1500);
+        })();
+
+        // =========================================================================
+        // DANH SÁCH BÀI THI & ĐỀ CƯƠNG
+        // =========================================================================
+        const examList = [
+            {
+                title: "TRIỆU CHỨNG HỌC GHÉP NỐI TUẦN HOÀN VÀ HÔ HẤP",
+                subject: "Triệu chứng học",
+                category: "ĐỀ THI",
+                questions: 49,
+                duration: "60 phút",
+                date: "03/10/2026",
+                link: "https://incomparable-haupia-3aafe6.netlify.app/"
+            },
+            {
+                title: "TRIỆU CHỨNG HỌC GHÉP NỐI TIÊU HÓA VÀ TIẾT NIỆU",
+                subject: "Triệu chứng học",
+                category: "ĐỀ THI",
+                questions: 47,
+                duration: "60 phút",
+                date: "03/10/2026",
+                link: "https://cosmic-kitten-9626d5.netlify.app/"
+            },
+            {
+                title: "TRIỆU CHỨNG HỌC GHÉP NỐI THẦN KINH VÀ CHẤN THƯƠNG",
+                subject: "Triệu chứng học",
+                category: "ĐỀ THI",
+                questions: 40,
+                duration: "60 phút",
+                date: "03/10/2026",
+                link: "https://unique-brioche-209c3d.netlify.app/"
+            },
+            {
+                title: "BÀI NGHE TIẾNG ANH",
+                subject: "Tiếng Anh cơ bản",
+                category: "ĐỀ THI",
+                questions: 50,
+                duration: "45 phút",
+                date: "03/10/2026",
+                link: "https://gorgeous-pasca-f01950.netlify.app/"
+            },
+            {
+                title: "ĐỌC HIỂU TIẾNG ANH",
+                subject: "Tiếng Anh cơ bản",
+                category: "ĐỀ THI",
+                questions: 50,
+                duration: "45 phút",
+                date: "03/10/2026",
+                link: "https://magenta-aaren-89.tiiny.site"
+            },
+            {
+                title: "CẤU TRÚC KỲ THI GPHN CHO CĐYSĐK",
+                subject: "GPHN",
+                category: "ĐỀ CƯƠNG",
+                type: "de_cuong",
+                date: "13/10/2026",
+                link: "https://golden-frangipane-e59b00.netlify.app"
+            },
+            {
+                title: "CẤU TRÚC KỲ THI GPHN",
+                subject: "GPHN",
+                category: "ĐỀ CƯƠNG",
+                type: "de_cuong",
+                date: "14/10/2026",
+                link: "https://dapper-creponne-fed126.netlify.app"
+            },
+        ];
+
+        const DEFAULT_TAB = "Chọn môn thi";
+        let selectedSubject = DEFAULT_TAB;
+
+        const examGrid = document.getElementById('examGrid');
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilters = document.getElementById('categoryFilters');
+
+        // KHỞI TẠO NÚT DANH MỤC
+        function initCategoryButtons() {
+            const subjects = [DEFAULT_TAB, ...new Set(examList.map(item => item.subject).filter(Boolean))];
+            
+            categoryFilters.innerHTML = subjects.map(sub => `
+                <button 
+                    class="filter-btn ${sub === selectedSubject ? 'active' : ''}" 
+                    onclick="filterBySubject('${sub}')">
+                    ${sub}
+                </button>
+            `).join('');
+        }
+
+        // BẤM VÀO MÔN THI
+        function filterBySubject(subjectName) {
+            selectedSubject = subjectName;
+            
+            const buttons = categoryFilters.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.trim() === subjectName) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            applyFilter();
+        }
+
+        // ÁP DỤNG BỘ LỌC
+        function applyFilter() {
+            const keyword = searchInput.value.toLowerCase().trim();
+
+            if (selectedSubject === DEFAULT_TAB && keyword === "") {
+                examGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📚</div>
+                        <p>Vui lòng chọn môn học để bắt đầu</p>
+                        <span>Bấm vào một môn học ở thanh phía trên để xem danh sách các đề thi trắc nghiệm tương ứng.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            const filtered = examList.filter(exam => {
+                const matchSubject = (selectedSubject === DEFAULT_TAB) || (exam.subject === selectedSubject);
+                const matchKeyword = 
+                    exam.title.toLowerCase().includes(keyword) || 
+                    (exam.category && exam.category.toLowerCase().includes(keyword)) ||
+                    (exam.subject && exam.subject.toLowerCase().includes(keyword));
+
+                return matchSubject && matchKeyword;
+            });
+
+            renderExams(filtered);
+        }
+
+        // HIỂN THỊ CÁC THẺ BÀI THI & ĐỀ CƯƠNG
+        function renderExams(data) {
+            if (data.length === 0) {
+                examGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>Không tìm thấy bài thi phù hợp</p>
+                        <span>Hãy thử kiểm tra lại từ khóa hoặc chọn một môn học khác.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            examGrid.innerHTML = data.map(exam => {
+                const isDeCuong = exam.type === 'de_cuong' || (exam.category && exam.category.toUpperCase().includes('ĐỀ CƯƠNG'));
+                const btnText = isDeCuong ? 'Ôn tập ngay' : 'Vào thi ngay';
+                const tagClass = isDeCuong ? 'card-tag outline-tag' : 'card-tag';
+                const durationHtml = (!isDeCuong && exam.duration) ? `<span>⏱️ ${exam.duration}</span>` : '';
+
+                return `
+                    <div class="exam-card">
+                        <div>
+                            <div class="card-tags">
+                                <span class="${tagClass}">${exam.category || (isDeCuong ? 'ĐỀ CƯƠNG' : 'Bài thi')}</span>
+                                ${exam.subject ? `<span class="card-tag subject-tag">${exam.subject}</span>` : ''}
+                            </div>
+                            <h2 class="card-title">${exam.title}</h2>
+                            <div class="card-meta">
+                                <span>📝 ${exam.questions} câu</span>
+                                ${durationHtml}
+                                <span>📅 ${exam.date}</span>
+                            </div>
+                        </div>
+                        <a href="${exam.link}" target="_blank" class="card-btn">${btnText}</a>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // LẮNG NGHE SỰ KIỆN GÕ TÌM KIẾM
+        searchInput.addEventListener('input', applyFilter);
+
+        // KHỞI ĐỘNG HỆ THỐNG
+        initCategoryButtons();
+        applyFilter();
+    </script>
+</body>
+</html>
